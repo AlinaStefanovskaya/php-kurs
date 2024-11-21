@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Файли та файлова структура</title>
+</head>
+<body>
+    <h2>Завантаження файлу</h2> 
+    <form action="process.php" method="post" enctype="multipart/form-data">
+        <input type="file" name="fileToUpload">
+        <input type="submit" value="Завантажити">
+    </form>
+
+    <h2>Запис тексту в файл</h2>
+    <form action="text.php" method="post">
+        <textarea name="textData" rows="4" cols="50" placeholder="Введіть текст"></textarea><br>
+        <input type="submit" value="Зберегти">
+    </form>
+
+    <h2>Список файлів</h2>
+    <a href="list.php">Переглянути список файлів</a>
+</body>
+</html>
