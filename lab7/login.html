@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вхід</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Вхід</h1>
+        <form id="login-form">
+            <label for="email">Електронна пошта:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Увійти</button>
+        </form>
+        <p id="login-error-message"></p>
+        
+
+        <button id="profile-edit-btn">Редагувати профіль</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+        
+        $('#profile-edit-btn').click(function() {
+            window.location.href = 'profile_edit.php'; 
+        });
+    </script>
+</body>
+</html>
