@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформлення замовлення</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Оформлення замовлення</h1>
+    <form id="orderForm">
+        <label for="orderNumber">Номер замовлення:</label>
+        <input type="text" id="orderNumber" name="orderNumber" required><br><br>
+
+        <label for="orderWeight">Вага замовлення (кг):</label>
+        <input type="number" id="orderWeight" name="orderWeight" required><br><br>
+
+        <label for="city">Місто:</label>
+        <select id="city" name="city" required>
+            <option value="">Оберіть місто</option>
+        </select><br><br>
+
+        <label for="deliveryType">Тип доставки:</label>
+        <select id="deliveryType" name="deliveryType" required>
+            <option value="">Оберіть тип доставки</option>
+            <option value="branch">Відділення</option>
+            <option value="locker">Поштомат</option>
+        </select><br><br>
+
+        <label for="branchOrLocker">Вибір відділення або поштомата:</label>
+        <select id="branchOrLocker" name="branchOrLocker" required>
+            <option value="">Оберіть відділення або поштомат</option>
+        </select><br><br>
+
+        <button type="submit">Підтвердити замовлення</button>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            const apiKey = '45dbc6a545bc22942f56379074e7bfd0';
+            const apiUrl = 'https://api.novaposhta.ua/v2.0/json/';
+
+            
+            $.ajax({
+                url: apiUrl,
+                type: 'POST',
+                data: JSON.stringify({
+                    apiKey: apiKey,
+                    modelName: "Address",
+                    calledMethod: "getCities",
+                    methodProperties: {}
+                }),
+                contentType: "application/json",
+                success: function(response) {
+                    const cities = response.data;
+                    cities.forEach(function(city) {
+                        $('#city').append(`<option value="${city.Ref}">${city.Description}</option>`);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("Помилка завантаження міст:", error);
+                }
+            });
+
+            
+            $('#city, #orderWeight').on('change input', function() {
+                const cityRef = $('#city').val();
+                const weight = $('#orderWeight').val();
+
+                if (cityRef && weight) {
+                    $.ajax({
+                        url: apiUrl,
+                        type: 'POST',
+                        data: JSON.stringify({
+                            apiKey: apiKey,
+                            modelName: "Address",
+                            calledMethod: "getWarehouses",
+                            methodProperties: {
+                                CityRef: cityRef
+                            }
+                        }),
+                        contentType: "application/json",
+                        success: function(response) {
+                            $('#branchOrLocker').empty().append('<option value="">Оберіть відділення або поштомат</option>');
+                            response.data.forEach(function(warehouse) {
+                                $('#branchOrLocker').append(`<option value="${warehouse.Ref}">${warehouse.Description}</option>`);
+                            });
+
+                            if (weight > 30) {
+                                $('#deliveryType option[value="locker"]').prop('disabled', true);
+                                if ($('#deliveryType').val() === 'locker') $('#deliveryType').val('');
+                            } else {
+                                $('#deliveryType option[value="locker"]').prop('disabled', false);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Помилка завантаження відділень:", error);
+                        }
+                    });
+                }
+            });
+
+            
+            $('#orderForm').submit(function(e) {
+                e.preventDefault();
+
+                const formData = {
+                    orderNumber: $('#orderNumber').val(),
+                    orderWeight: $('#orderWeight').val(),
+                    city: $('#city').val(),
+                    deliveryType: $('#deliveryType').val(),
+                    branchOrLocker: $('#branchOrLocker').val(),
+                };
+
+                if (!formData.orderNumber || !formData.orderWeight || !formData.city || !formData.deliveryType || !formData.branchOrLocker) {
+                    alert('Будь ласка, заповніть всі поля.');
+                    return;
+                }
+
+                $.ajax({
+                    url: 'save_order.php',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        alert(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Помилка збереження замовлення:", error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
